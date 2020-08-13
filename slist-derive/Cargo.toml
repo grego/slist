@@ -1,0 +1,10 @@
+[package]
+name = "slist-derive"
+version = "0.1.0"
+authors = ["Maros Grego <maros@grego.site>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]

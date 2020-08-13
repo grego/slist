@@ -11,6 +11,6 @@ categories = ["data-structures", "mathematics", "no-std", "rust-patterns"]
 keywords = ["list", "static", "const-generics"]
 
 [dependencies]
-slist-derive = { path = "slist-derive", version = "0.1.0" }
+slist-derive = { version = "0.1.0" }
 
 [workspace]

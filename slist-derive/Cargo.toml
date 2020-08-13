@@ -3,6 +3,9 @@ name = "slist-derive"
 version = "0.1.0"
 authors = ["Maros Grego <maros@grego.site>"]
 edition = "2018"
+description = "Deriving traits for the slist crate"
+repository = "https://github.com/grego/slist"
+license = "MIT"
 
 [lib]
 proc-macro = true

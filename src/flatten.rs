@@ -1,4 +1,4 @@
-//! Flatten a list of lists of type `U' into a list of `U`
+//! Flatten a list of lists of type `U` into a list of `U`
 
 use super::{Either, List, Slist, SlistSum};
 

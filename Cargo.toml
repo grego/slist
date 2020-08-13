@@ -1,6 +1,6 @@
 [package]
 name = "slist"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Maros Grego <maros@grego.site>"]
 edition = "2018"
 description = "Algebraic lists with statically determined size that live on stack."

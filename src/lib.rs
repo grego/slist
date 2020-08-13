@@ -8,7 +8,7 @@
 //! Just the Rust trait system.
 //!
 //! Lists are constructed kind of like natural numbers in [Peano arithmetic](https://en.wikipedia.org/wiki/Peano_axioms).
-//! For example, the type of a with 8 elements is
+//! For example, the type of a list with 8 elements is
 //! ```
 //! # use slist::List;
 //! # type T = u8;
@@ -52,7 +52,7 @@
 //! ```
 //!
 //! The macros are only used for convenience and are not necessary for the library to function.
-//! For example, the following code gets expanded to:
+//! For example, the preceding code gets expanded to:
 //! ```
 //! # use slist::prelude::*;
 //! # use std::io::BufRead;
@@ -74,18 +74,18 @@
 //! This crate can take a heavy toll on the compiler and using in in production can be adventurous.
 
 /// Implementation of addition and multiplication for lists.
-pub mod arithmetic;
+mod arithmetic;
 /// Implementation of equality traits for lists.
-pub mod eq;
+mod eq;
 /// A helper module, exporting all traits for convenient working with lists.
 pub mod prelude {
     pub use crate::{slist, Slist, SlistAsRef, SlistFlatten, SlistMap, SlistReverse, SlistSum};
 }
 
-pub mod as_ref;
-pub mod flatten;
-pub mod map;
-pub mod reverse;
+mod as_ref;
+mod flatten;
+mod map;
+mod reverse;
 
 pub use as_ref::SlistAsRef;
 pub use flatten::SlistFlatten;

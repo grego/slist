@@ -10,7 +10,7 @@ no dynamic dispatch, no dependencies, no unstable code used for the implementati
 Just the Rust trait system.
 
 Lists are constructed kind of like natural numbers in [Peano arithmetic](https://en.wikipedia.org/wiki/Peano_axioms).
-For example, the type of a with 8 elements is
+For example, the type of a list with 8 elements is
 ```rust
 let l: List<T, List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>>;
 ```
@@ -48,7 +48,7 @@ let list = list.filter_map(|i| i);
 ```
 
 The macros are only used for convenience and are not necessary for the library to function.
-For example, the following code gets expanded to:
+For example, the preceding code gets expanded to:
 ```rust
 let list = {
     use slist::List;

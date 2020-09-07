@@ -1,8 +1,7 @@
 //! Reverse the direction of a list
 
-use super::{Either, List, Slist, SlistSum};
+use super::{Either, List, Slist, SlistSum, Void};
 
-use core::convert::Infallible;
 use core::ops::Add;
 
 /// Reverse the direction of a list.
@@ -12,7 +11,7 @@ pub trait SlistReverse<T>: Slist<T> {
     fn reverse(self) -> Self;
 }
 
-impl<T> SlistReverse<T> for Infallible {
+impl<T> SlistReverse<T> for Void {
     #[inline]
     fn reverse(self) -> Self {
         self

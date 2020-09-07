@@ -2,7 +2,7 @@
 #![warn(missing_docs)]
 //! s(tatic|tack)lists
 //! Experimental algebraic lists with with statically determined size that live on stack.
-//! They can be mapped, folded, filtered and have continuous storage.
+//! They can be iterated over, mapped, folded, filtered and have continuous storage.
 //! `#![no_std]`, no const generics, no macros, no unsafe, no heap allocation nor boxing,
 //! no dynamic dispatch, no dependencies, no unstable code used for the implementation.
 //! Just the Rust trait system.
@@ -18,10 +18,9 @@
 //! When the list is filtered, the result can be an arbitrary sublist, so the returned
 //! type is a disjuncion of all lists smaller than the original:
 //! ```
-//! # use slist::{Either, List};
-//! # use core::convert::Infallible;
+//! # use slist::{Either, List, Void};
 //! # type T = u8;
-//! let s: Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, ()>>>>>, Either<List<T, List<T, List<T, List<T, ()>>>>, Either<List<T, List<T, List<T, ()>>>, Either<List<T, List<T, ()>>, Either<List<T, ()>, Either<(), Infallible>>>>>>>>>;
+//! let s: Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, ()>>>>>, Either<List<T, List<T, List<T, List<T, ()>>>>, Either<List<T, List<T, List<T, ()>>>, Either<List<T, List<T, ()>>, Either<List<T, ()>, Either<(), Void>>>>>>>>>;
 //! ```
 //! Although very cumbersome to write, in the actual implementation, it has linear memory efficienncy and
 //! is only one tag longer than the original, which is as short as it can get, since the length is
@@ -35,6 +34,12 @@
 //! let filtered = list.filter(|u| (u % 2) == 0);
 //! assert_eq!(filtered + slist![3, 4, 5], slist![4, 20, 14, 3, 4, 5]);
 //! assert_eq!(slist![6, 7] * slist![false, true], slist![(6, false), (7, false), (6, true), (7, true)]);
+//!
+//! let mut list = slist![4, 5, 6];
+//! for i in list.as_mut() {
+//!     *i += 2;
+//! }
+//! assert_eq!(list, slist![6, 7, 8]);
 //! ```
 //!
 //! Note that when provided with an expression and size, the `slist` macro evaluates the expression
@@ -77,6 +82,8 @@
 mod arithmetic;
 /// Implementation of equality traits for lists.
 mod eq;
+/// Implementation of iterators for lists.
+mod iter;
 /// A helper module, exporting all traits for convenient working with lists.
 pub mod prelude {
     pub use crate::{slist, Slist, SlistAsRef, SlistFlatten, SlistMap, SlistReverse, SlistSum};
@@ -94,8 +101,6 @@ pub use reverse::SlistReverse;
 pub use slist_derive::slist_typegen;
 
 use core::cmp::Ordering;
-// TODO: replace with `!` (the never type) once stabilised
-use core::convert::Infallible;
 use core::fmt::{self, Display, Formatter};
 use core::ops::{Add, Index, IndexMut};
 
@@ -107,7 +112,7 @@ pub trait Slist<T>: Sized {
     /// via the `filter` method.
     type Filter;
     /// Keep only the elements in the list that satisfy the given closure `f`.
-    /// The closure must return `true` or `false`. Only the elemets for whic it returns
+    /// The closure must return `true` or `false`. Only the elemets for which it returns
     /// `true` are retained.
     #[inline]
     fn filter<F: FnMut(&T) -> bool>(self, _f: F) -> Either<Self, Self::Filter> {
@@ -187,16 +192,6 @@ pub trait Slist<T>: Sized {
     }
 }
 
-/// A disjunction of all the list types of type `T`, up to a certain length.
-/// Used for implementing `filter` for lists.
-pub trait SlistSum<T>: Slist<T> {
-    /// The next list that is not in the disjunction.
-    /// The smallest list of type T that is larger than any of the lists in the current type.
-    type Next: Slist<T>;
-    /// Add another element to this list, possibly making it larger.
-    fn push(self, item: T) -> Either<Self::Next, Self>;
-}
-
 /// A list type that contains an element of type `T` and another element, which is either another
 /// list type or unit (`()`).
 /// By convention, the given element is considered the last item on the list, although the compiler
@@ -218,12 +213,16 @@ pub enum Either<N, M> {
     Right(M),
 }
 
-impl<T> Slist<T> for Infallible {
-    type Filter = Infallible;
+/// A type that cannot have an actual value, thus cannot ever be constructed.
+#[derive(Debug)]
+pub enum Void {}
+
+impl<T> Slist<T> for Void {
+    type Filter = Void;
 }
 
 impl<T> Slist<T> for () {
-    type Filter = Infallible;
+    type Filter = Void;
 }
 
 /// For soundness reasons, `Slist` should be implemented only for those lists that contain
@@ -373,6 +372,16 @@ impl<T, N: Slist<T>, M: Slist<T>> Slist<T> for Either<N, M> {
     }
 }
 
+/// A disjunction of all the list types of type `T`, up to a certain length.
+/// Used for implementing `filter` for lists.
+pub trait SlistSum<T>: Slist<T> {
+    /// The next list that is not in the disjunction.
+    /// The smallest list of type T that is larger than any of the lists in the current type.
+    type Next: Slist<T>;
+    /// Add another element to this list, possibly making it larger.
+    fn push(self, item: T) -> Either<Self::Next, Self>;
+}
+
 impl<T> SlistSum<T> for () {
     type Next = List<T, ()>;
 
@@ -382,7 +391,7 @@ impl<T> SlistSum<T> for () {
     }
 }
 
-impl<T> SlistSum<T> for Infallible {
+impl<T> SlistSum<T> for Void {
     type Next = ();
 
     #[inline]
@@ -522,10 +531,17 @@ impl<N: Clone, M: Clone> Clone for Either<M, N> {
 
 impl<N: Copy, M: Copy> Copy for Either<N, M> {}
 
-impl<N: Default, M> Default for Either<N, M> {
+impl<N, M: Default> Default for Either<N, M> {
     #[inline]
     fn default() -> Self {
-        Either::Left(N::default())
+        Either::Right(M::default())
+    }
+}
+
+impl<N: Default> Default for Either<N, Void> {
+    #[inline]
+    fn default() -> Self {
+        Either::Left(Default::default())
     }
 }
 

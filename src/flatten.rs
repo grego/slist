@@ -1,8 +1,7 @@
 //! Flatten a list of lists of type `U` into a list of `U`
 
-use super::{Either, List, Slist, SlistSum};
+use super::{Either, List, Slist, SlistSum, Void};
 
-use core::convert::Infallible;
 use core::ops::Add;
 
 /// Flatten a list of lists of type `U' into a list of `U'
@@ -22,8 +21,8 @@ where
     fn flatten(self) -> Self::Flattened;
 }
 
-impl<T: Slist<U>, U> SlistFlatten<T, U> for Infallible {
-    type Flattened = Infallible;
+impl<T: Slist<U>, U> SlistFlatten<T, U> for Void {
+    type Flattened = Void;
 
     #[inline]
     fn flatten(self) -> Self::Flattened {

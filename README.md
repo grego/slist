@@ -1,10 +1,10 @@
-# s(tatic|tack)lists
+# s(tatic|tack)list
 [![Build status](https://badgen.net/github/status/grego/slist)](https://github.com/grego/slist/actions?query=workflow%3Atests) 
 [![Crates.io status](https://badgen.net/crates/v/slist)](https://crates.io/crates/slist)
 [![Docs](https://docs.rs/slist/badge.svg)](https://docs.rs/slist)
 
 Experimental algebraic lists with with statically determined size that live on stack.
-They can be mapped, folded, filtered and have continuous storage.
+They can be iterated over, mapped, folded, filtered and have continuous storage.
 `#![no_std]`, no const generics, no macros, no unsafe, no heap allocation nor boxing,
 no dynamic dispatch, no dependencies, no unstable code used for the implementation.
 Just the Rust trait system.
@@ -18,7 +18,7 @@ let l: List<T, List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>
 When the list is filtered, the result can be an arbitrary sublist, so the returned
 type is a disjuncion of all lists smaller than the original:
 ```rust
-let s: Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, ()>>>>>, Either<List<T, List<T, List<T, List<T, ()>>>>, Either<List<T, List<T, List<T, ()>>>, Either<List<T, List<T, ()>>, Either<List<T, ()>, Either<(), Infallible>>>>>>>>>;
+let s: Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, List<T, ()>>>>>>, Either<List<T, List<T, List<T, List<T, List<T, ()>>>>>, Either<List<T, List<T, List<T, List<T, ()>>>>, Either<List<T, List<T, List<T, ()>>>, Either<List<T, List<T, ()>>, Either<List<T, ()>, Either<(), Void>>>>>>>>>;
 ```
 Although very cumbersome to write, in the actual implementation, it has linear memory efficienncy and
 is only one tag longer than the original, which is as short as it can get, since the length is
@@ -32,6 +32,12 @@ let list = slist![0_usize, 3, 10, 19, 12, 22, 28, 13, 6].map(|i| i + 1);
 let filtered = list.filter(|u| (u % 2) == 0);
 assert_eq!(filtered + slist![3, 4, 5], slist![4, 20, 14, 3, 4, 5]);
 assert_eq!(slist![6, 7] * slist![false, true], slist![(6, false), (7, false), (6, true), (7, true)]);
+
+let mut list = slist![4, 5, 6];
+for i in list.as_mut() {
+    *i += 2;
+}
+assert_eq!(list, slist![6, 7, 8]);
 ```
 
 Note that when provided with an expression and size, the `slist` macro evaluates the expression

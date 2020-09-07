@@ -1,6 +1,5 @@
-use super::{Either, List, Slist, SlistMap, SlistSum};
+use super::{Either, List, Slist, SlistMap, SlistSum, Void};
 
-use core::convert::Infallible;
 use core::ops::{Add, Mul};
 
 impl<T, N: Slist<T, Filter = S>, S: SlistSum<T, Next = N>> Add<()> for List<T, N> {
@@ -143,17 +142,17 @@ where
     }
 }
 
-impl<T, N: Slist<T>> Add<Infallible> for List<T, N> {
-    type Output = Infallible;
+impl<T, N: Slist<T>> Add<Void> for List<T, N> {
+    type Output = Void;
 
     #[inline]
-    fn add(self, other: Infallible) -> Self::Output {
+    fn add(self, other: Void) -> Self::Output {
         other
     }
 }
 
-impl<T, N: Slist<T>> Add<List<T, N>> for Infallible {
-    type Output = Infallible;
+impl<T, N: Slist<T>> Add<List<T, N>> for Void {
+    type Output = Void;
 
     #[inline]
     fn add(self, _: List<T, N>) -> Self::Output {
@@ -161,17 +160,17 @@ impl<T, N: Slist<T>> Add<List<T, N>> for Infallible {
     }
 }
 
-impl<T, N: Slist<T>> Mul<Infallible> for List<T, N> {
-    type Output = Infallible;
+impl<T, N: Slist<T>> Mul<Void> for List<T, N> {
+    type Output = Void;
 
     #[inline]
-    fn mul(self, other: Infallible) -> Self::Output {
+    fn mul(self, other: Void) -> Self::Output {
         other
     }
 }
 
-impl<T, N: Slist<T>> Mul<List<T, N>> for Infallible {
-    type Output = Infallible;
+impl<T, N: Slist<T>> Mul<List<T, N>> for Void {
+    type Output = Void;
 
     #[inline]
     fn mul(self, _: List<T, N>) -> Self::Output {
@@ -179,8 +178,8 @@ impl<T, N: Slist<T>> Mul<List<T, N>> for Infallible {
     }
 }
 
-impl<M, N> Add<Either<N, M>> for Infallible {
-    type Output = Infallible;
+impl<M, N> Add<Either<N, M>> for Void {
+    type Output = Void;
 
     #[inline]
     fn add(self, _: Either<N, M>) -> Self::Output {
@@ -188,8 +187,8 @@ impl<M, N> Add<Either<N, M>> for Infallible {
     }
 }
 
-impl<M, N> Mul<Either<N, M>> for Infallible {
-    type Output = Infallible;
+impl<M, N> Mul<Either<N, M>> for Void {
+    type Output = Void;
 
     #[inline]
     fn mul(self, _: Either<N, M>) -> Self::Output {

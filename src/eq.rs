@@ -1,5 +1,4 @@
-use super::{Either, List, Slist, SlistSum};
-use core::convert::Infallible;
+use super::{Either, List, Slist, SlistSum, Void};
 
 impl<T, U, N, M> PartialEq<List<U, M>> for List<T, N>
 where
@@ -57,14 +56,14 @@ where
     }
 }
 
-impl<T, N: Slist<T>> PartialEq<Infallible> for List<T, N> {
+impl<T, N: Slist<T>> PartialEq<Void> for List<T, N> {
     #[inline]
-    fn eq(&self, _: &Infallible) -> bool {
+    fn eq(&self, _: &Void) -> bool {
         false
     }
 }
 
-impl<T, N: Slist<T>> PartialEq<List<T, N>> for Infallible {
+impl<T, N: Slist<T>> PartialEq<List<T, N>> for Void {
     #[inline]
     fn eq(&self, _: &List<T, N>) -> bool {
         false
@@ -85,9 +84,9 @@ impl<T, N: Slist<T>> PartialEq<()> for List<T, N> {
     }
 }
 
-impl<N, M> PartialEq<Infallible> for Either<N, M> {
+impl<N, M> PartialEq<Void> for Either<N, M> {
     #[inline]
-    fn eq(&self, _: &Infallible) -> bool {
+    fn eq(&self, _: &Void) -> bool {
         false
     }
 }
@@ -99,7 +98,7 @@ impl<N, M> PartialEq<()> for Either<N, M> {
     }
 }
 
-impl<N, M> PartialEq<Either<N, M>> for Infallible {
+impl<N, M> PartialEq<Either<N, M>> for Void {
     #[inline]
     fn eq(&self, _: &Either<N, M>) -> bool {
         false
